@@ -100,6 +100,6 @@ MIT License - See LICENSE file for details
 
 ## 🤝 Connect
 
-Created by [Your Name]
-- LinkedIn: [Your LinkedIn]
-- Portfolio: [Your Website]
+Created by j0hnb0yle
+- LinkedIn: (https://www.linkedin.com/in/johnboylemba/)
+- Portfolio:(https://j0hnb0yle.github.io/)
