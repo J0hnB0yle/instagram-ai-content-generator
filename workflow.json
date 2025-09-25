@@ -1,0 +1,448 @@
+{
+  "name": "Multi-Stage AI Content Pipeline",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "=days\n"
+            },
+            {
+              "triggerAtHour": 9
+            },
+            {
+              "triggerAtHour": 14
+            },
+            {
+              "triggerAtHour": 19
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "eb9c656f-1f96-4347-832e-08204d6572e1",
+      "name": "Schedule Trigger",
+      "notesInFlow": true,
+      "notes": "Node: Schedule Trigger\nPurpose: Daily content generation at optimal times\nConfiguration:\n- Cron Expression: \"0 9,14,19 * * *\" (9am, 2pm, 7pm)\n- Timezone: Your local timezone\n- Active: Yes"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "bd5962e2-9ad0-4346-b8df-2832cd49b10b",
+              "name": "instagram_niche",
+              "value": "fitness",
+              "type": "string"
+            },
+            {
+              "id": "58ef3b06-9152-4f81-8766-7d17a3129326",
+              "name": "target_audience",
+              "value": "25-40 year old professionals interested in personal development",
+              "type": "string"
+            },
+            {
+              "id": "f5695845-ea35-4936-ac6b-2af18a66f8eb",
+              "name": "brand_voice",
+              "value": "professional, inspiring, educational",
+              "type": "string"
+            },
+            {
+              "id": "cc1dc656-f891-4e23-b173-82d85dcec42f",
+              "name": "content_type",
+              "value": "carousel,single_post,reel_idea",
+              "type": "string"
+            },
+            {
+              "id": "8244e036-49b3-4a71-a4ac-f0e6e3eeefe5",
+              "name": "daily_limit",
+              "value": 3,
+              "type": "number"
+            },
+            {
+              "id": "b54253cf-da27-4e3e-8cb1-587884d696c4",
+              "name": "test_mode",
+              "value": "=true",
+              "type": "boolean"
+            }
+          ]
+        },
+        "options": {
+          "ignoreConversionErrors": false
+        }
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        208,
+        0
+      ],
+      "id": "b49621d3-fec5-48a2-abb9-8573e0400eac",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "claude-opus-4-1-20250805",
+          "mode": "list",
+          "cachedResultName": "Claude Opus 4.1"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
+      "position": [
+        704,
+        208
+      ],
+      "id": "a1cd725e-94b0-40c7-a2b8-171b909cb80d",
+      "name": "Anthropic Chat Model",
+      "credentials": {
+        "anthropicApi": {
+          "id": "vxZeKbuLJpbmWozN",
+          "name": "Anthropic account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "claude-opus-4-1-20250805",
+          "mode": "list",
+          "cachedResultName": "Claude Opus 4.1"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
+      "position": [
+        1056,
+        208
+      ],
+      "id": "c770de75-ccf8-49e0-994b-b6ba13b6d219",
+      "name": "Anthropic Chat Model1",
+      "credentials": {
+        "anthropicApi": {
+          "id": "vxZeKbuLJpbmWozN",
+          "name": "Anthropic account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Based on this viral content idea:\n{{ $json.output }}\n\nChoose a random content type and create:\n\n{{ Math.random() > 0.66 ? 'CAROUSEL - 10 slides' : Math.random() > 0.33 ? 'REEL SCRIPT - 30 seconds' : 'SINGLE POST with caption' }}\n\nFor CAROUSEL: Write 10 slides with title and text (30-50 words each)\nFor REEL: Write hook (0-3 sec), problem (3-10 sec), solution (10-25 sec), CTA (25-30 sec) with shot descriptions\nFor SINGLE POST: Write visual description + 200 word caption with hook, value, and CTA\n\nTarget: {{ $('Edit Fields').item.json.target_audience }}\nVoice: {{ $('Edit Fields').item.json.brand_voice }}\n\nBe specific to fitness. Make it actionable and valuable.",
+        "options": {
+          "systemMessage": "You are an expert Instagram content writer who creates viral fitness content. Your posts regularly get 10k+ likes and 50%+ engagement rates. You understand hooks, storytelling, and calls-to-action perfectly."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        1184,
+        0
+      ],
+      "id": "74cf6a00-7038-433c-859d-1304a8f5177c",
+      "name": "Content Createor"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Based on this fitness content:\n{{ $json.output }}\n\nGenerate exactly 30 Instagram hashtags following this distribution:\n- 5 mega hashtags (1M+ posts): #fitness #gym etc\n- 7 large hashtags (500K-1M posts)  \n- 8 medium hashtags (100K-500K posts)\n- 7 small hashtags (10K-100K posts)\n- 3 branded/unique hashtags (under 10K)\n\nMix general fitness, specific exercise, motivation, and community tags.\nFormat as a single line with spaces between hashtags.",
+        "options": {
+          "systemMessage": "You are an Instagram hashtag expert who understands hashtag strategy for maximum reach."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        1536,
+        0
+      ],
+      "id": "835f8496-3c73-44f9-89ae-4b4124a19f6e",
+      "name": "Hashtag Generator"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "claude-opus-4-1-20250805",
+          "mode": "list",
+          "cachedResultName": "Claude Opus 4.1"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
+      "position": [
+        1408,
+        208
+      ],
+      "id": "dd048b49-0d37-48b0-9e77-6c427217b952",
+      "name": "Anthropic Chat Model2",
+      "credentials": {
+        "anthropicApi": {
+          "id": "vxZeKbuLJpbmWozN",
+          "name": "Anthropic account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1542a712-fc5e-4941-8dc8-bdd84cd47da4",
+              "name": "best_time_weekday",
+              "value": "6:00 AM or 5:00 PM",
+              "type": "string"
+            },
+            {
+              "id": "3e1d5da2-9a6e-4513-8c3c-4f983a0319f4",
+              "name": "best_time_weekend",
+              "value": "11:00 AM or 2:00 PM",
+              "type": "string"
+            },
+            {
+              "id": "48a5239f-1082-423b-9542-3bffe03af7c9",
+              "name": "optimal_time",
+              "value": "`{{ $json.current_day == 0",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        416,
+        0
+      ],
+      "id": "dab2191c-56e1-4de3-a7da-81bcbe3ac685",
+      "name": "Posting Schedule"
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "databaseId": "=294336",
+        "tableId": "=684200",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": 5651382,
+              "fieldValue": "={{ new Date().toISOString().split('T')[0] }}"
+            },
+            {
+              "fieldId": 5651389,
+              "fieldValue": "carousel\n"
+            },
+            {
+              "fieldId": 5651394,
+              "fieldValue": "={{ $items()[0].json.output }}\n"
+            },
+            {
+              "fieldId": 5652632,
+              "fieldValue": "={{ $json.output}}"
+            },
+            {
+              "fieldId": 5652633,
+              "fieldValue": "={{ $('Posting Schedule').item.json.optimal_time }}"
+            },
+            {
+              "fieldId": 5651404,
+              "fieldValue": "8"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.baserow",
+      "typeVersion": 1,
+      "position": [
+        1920,
+        0
+      ],
+      "id": "1d4de03a-c64b-4701-a1e2-9d798d1950ff",
+      "name": "Database",
+      "credentials": {
+        "baserowApi": {
+          "id": "PawLXcnVbS6M28cC",
+          "name": "Baserow account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://www.reddit.com/r/fitness/hot.json?limit=10",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "n8n-bot/1.0"
+            },
+            {}
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        624,
+        0
+      ],
+      "id": "eed8a13d-811f-43a3-8951-98288a5519ae",
+      "name": "Scraper"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Based on these trending fitness topics from Reddit:\n{{ $('Scraper').item.json.data.children.slice(0,5).map(post => post.data.title).join(', ') }}\n\nGenerate 3 viral Instagram content ideas for the fitness niche.\n\nFor each idea provide:\n1. Content type (carousel, reel, or single post)\n2. Hook that will stop scrolling\n3. Main content angle\n4. Viral potential score (1-10)\n5. Best time to post\n\nFormat as a clear list, not JSON.\nTarget audience: {{ $('Edit Fields').item.json.target_audience }}\nBrand voice: {{ $('Edit Fields').item.json.brand_voice }}",
+        "options": {
+          "systemMessage": "You are a viral Instagram content strategist specializing in fitness content. You have grown multiple fitness accounts to 100k+ followers. You understand what makes fitness content go viral: transformation stories, quick tips, myth-busting, and motivational content."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        832,
+        0
+      ],
+      "id": "9c188d99-36a3-4e42-aa6a-bca0e2ade0e8",
+      "name": "Trend Analyzer"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Posting Schedule",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anthropic Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Trend Analyzer",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anthropic Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Content Createor",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Content Createor": {
+      "main": [
+        [
+          {
+            "node": "Hashtag Generator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Hashtag Generator": {
+      "main": [
+        [
+          {
+            "node": "Database",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anthropic Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Hashtag Generator",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Posting Schedule": {
+      "main": [
+        [
+          {
+            "node": "Scraper",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Scraper": {
+      "main": [
+        [
+          {
+            "node": "Trend Analyzer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Trend Analyzer": {
+      "main": [
+        [
+          {
+            "node": "Content Createor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "d36a64dc-a7dd-42dc-a374-f9076334a266",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "6637924cca6d32ccf607f24d9909176b545c0c7e971b45db252e520ffbd17870"
+  },
+  "id": "DQ8HqKfBaYYfB7Ie",
+  "tags": []
+}
