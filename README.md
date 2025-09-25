@@ -21,7 +21,7 @@ Automated content generation pipeline that creates viral Instagram posts using A
 
 ## 📊 Workflow Architecture
 
-![Workflow Diagram](workflow/workflow-diagram.png)
+![Workflow Diagram](Workflow-diagram.png)
 
 ### Workflow Components:
 1. **Schedule Trigger**: Runs 3x daily at optimal times
@@ -57,7 +57,7 @@ Automated content generation pipeline that creates viral Instagram posts using A
 5. Test with manual trigger
 6. Enable schedule trigger
 
-[Detailed setup instructions](docs/setup-guide.md)
+
 
 ## 📝 Sample Output
 
@@ -68,8 +68,9 @@ Automated content generation pipeline that creates viral Instagram posts using A
 **Title:** "The 5 'Stupid' Questions Every Gym Beginner Is Too Afraid to Ask"
 **Text:** The top 5 nobody talks about (but EVERYONE thinks)...
 
-[Full sample](docs/sample-outputs/carousel-example.md)
 </details>
+
+
 
 ## 🎯 Use Cases
 
@@ -101,5 +102,5 @@ MIT License - See LICENSE file for details
 ## 🤝 Connect
 
 Created by j0hnb0yle
-- LinkedIn: (https://www.linkedin.com/in/johnboylemba/)
-- Portfolio:(https://j0hnb0yle.github.io/)
+- LinkedIn: [johnboylemba](https://www.linkedin.com/in/johnboylemba/)
+- Portfolio: [j0hnb0yle.github.io](https://j0hnb0yle.github.io/)
